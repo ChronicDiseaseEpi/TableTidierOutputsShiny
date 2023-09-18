@@ -38,9 +38,9 @@ ui <- fluidPage(
                    dataTableOutput(outputId = "notes")),
           tabPanel("Data", dataTableOutput(outputId = "table_data")),
           tabPanel("Terminology", dataTableOutput(outputId = "table_term")),
-          tabPanel("Data and terminology", dataTableOutput(outputId = "table_data_term"))
-          
-          
+          tabPanel("Data and terminology", 
+                   dataTableOutput(outputId = "table_data_term"),
+                   shiny::actionLink("separate_button", "Separate values to columns"))
         )
     )
 )
@@ -57,7 +57,10 @@ server <- function(input, output) {
     a 
     })
   
-  mytbl <- reactive(clctn()[[input$n_slct]])
+  mytbl <- reactive( {
+     clctn()[[input$n_slct]]
+  }
+    )
   
   output$notes <- renderDataTable(ConvertNotes(clctn()) %>% 
                                 mutate(tid = str_sub(tid, 4)))
@@ -65,6 +68,8 @@ server <- function(input, output) {
   
  output$table_data <- renderDataTable(
    ConvertData(mytbl()),
+   server = FALSE,
+   editable = TRUE,
    extensions = 'Buttons', 
    options = list(dom = 'Bfrtip',
                   buttons = c('copy', 'csv', 'excel', 'pdf', 'print')))
